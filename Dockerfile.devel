@@ -1,0 +1,6 @@
+# Copyright 2018 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+# SPDX-License-Identifier: Apache-2.0
+FROM ros:kinetic-ros-base
+
+RUN apt-get update
+RUN apt-get install -y python3-apt python3-pip
