@@ -4,6 +4,7 @@
 import os
 import stat
 import subprocess
+from subprocess import PIPE
 import tempfile
 from urllib.request import urlretrieve
 
@@ -45,7 +46,7 @@ class RdmanifestBundleInstallerExtensionPoint(BundleInstallerExtensionPoint):
 
     def install(self):  # noqa: D102
         for name, metadata in self._items.items():
-            logger.error('Installing {name}'.format(name=name))
+            logger.info('Installing {name}'.format(name=name))
             uri = metadata['uri']
             usr_prefix_path = os.path.join(self.context.prefix_path, 'usr')
             _install_rdmanifest(uri, usr_prefix_path)
@@ -139,12 +140,17 @@ def _execute(script, prefix=None, path=None):
             env = os.environ.copy()
             if prefix is not None:
                 env['COLCON_BUNDLE_INSTALL_PREFIX'] = prefix
-            result = subprocess.call(fh.name, cwd=path, env=env)
+            result = subprocess.run(
+                fh.name, cwd=path, env=env, stdout=PIPE, stderr=PIPE,
+                universal_newlines=True)
+            if result.stdout is not None:
+                logger.debug('stdout output: \n' + result.stdout)
+            if result.stderr is not None:
+                logger.warn('stderr output: \n' + result.stderr)
         except OSError as ex:
             print('Execution failed with OSError: %s' % ex)
     finally:
         if os.path.exists(fh.name):
             os.remove(fh.name)
-
     logger.info('Return code was: %s' % result)
-    return result == 0
+    return result.returncode == 0
