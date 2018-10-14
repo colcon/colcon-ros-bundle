@@ -45,7 +45,7 @@ class RosCatkinBundle(TaskExtensionPoint):
 
         view = lookup.get_rosdep_view(DEFAULT_VIEW_KEY, verbose=verbose)
 
-        for dependency in self.context.args.runtime_dependencies:
+        for dependency in self.context.pkg.dependencies['run']:
             if dependency.name in self.context.dependencies:
                 logger.info('Skipping {dependency} of {args.path} because it '
                             'is in the workspace'.format_map(locals()))
