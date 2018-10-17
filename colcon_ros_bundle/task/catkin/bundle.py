@@ -76,7 +76,7 @@ class RosCatkinBundle(TaskExtensionPoint):
                 package_name = package_name_list[0]
                 args.installers[rule_installer].add_to_install_list(
                     package_name)
-                logger.error(
+                logger.info(
                     'Resolved {dependency} to {os_specific_dependency} '
                     'for {installer}'.format(
                         dependency=dependency.name,
