@@ -4,10 +4,7 @@
 from colcon_core.plugin_system import satisfies_version
 from colcon_core.task import TaskExtensionPoint
 from colcon_ros_bundle.task import logger
-from rosdep2 import create_default_installer_context, get_default_installer, \
-    RosdepLookup
-from rosdep2.rospkg_loader import DEFAULT_VIEW_KEY
-from rosdep2.sources_list import SourcesListLoader
+from colcon_ros_bundle.task.catkin._rosdep import RosdepWrapper
 
 
 class RosCatkinBundle(TaskExtensionPoint):
@@ -24,40 +21,29 @@ class RosCatkinBundle(TaskExtensionPoint):
             help='ROS distribution version default: kinetic')
         parser.add_argument(
             '--exclude-ros-base', action='store_true',
-            help='Include ros-base in the bundle.')
+            help='Do not add ros-base package to the bundle')
 
     async def bundle(self):  # noqa D:102
         args = self.context.args
-        verbose = False
         logger.info(
-            'Bundling ROS package in "{args.path}" with build type "catkin"'
-            .format_map(locals()))
+            'Bundling ROS package in "{self.context.pkg.path}" '
+            'with build type "catkin"'.format_map(locals()))
 
-        installer_context = create_default_installer_context(verbose=verbose)
-        installer, installer_keys, default_key, \
-            os_name, os_version = get_default_installer(
-                installer_context=installer_context,
-                verbose=verbose)
-
-        sources_loader = SourcesListLoader.create_default()
-        lookup = RosdepLookup.create_from_rospkg(sources_loader=sources_loader)
-        lookup.verbose = True
-
-        view = lookup.get_rosdep_view(DEFAULT_VIEW_KEY, verbose=verbose)
-
+        rosdep = RosdepWrapper()
         for dependency in self.context.pkg.dependencies['run']:
             if dependency.name in self.context.dependencies:
-                logger.info('Skipping {dependency} of {args.path} because it '
-                            'is in the workspace'.format_map(locals()))
+                logger.info('Skipping {dependency} of {self.context.pkg.name} '
+                            'because it is in the workspace'
+                            .format_map(locals()))
                 continue
             try:
-                rosdep_dependency = view.lookup(dependency.name)
+                logger.error(rosdep)
+                rule_installer, rule = rosdep.get_rule(dependency.name)
             except KeyError as e:
                 logger.error('Could not find key for {dependency}'.format(
                     dependency=dependency.name))
                 continue
-            rule_installer, rule = rosdep_dependency.get_rule_for_platform(
-                os_name, os_version, installer_keys, default_key)
+
             if rule_installer == 'source':
                 logger.error(
                     '{dependency} should be built from source.'.format(
@@ -68,8 +54,12 @@ class RosCatkinBundle(TaskExtensionPoint):
                             dependency.name,
                             rule
                         )
+                else:
+                    logger.error('{dependency} should be built from source '
+                                 'but does not link to an rdmanifest'
+                                 .format(dependency=dependency.name))
             else:
-                package_name_list = installer.resolve(rule)
+                package_name_list = rosdep.resolve(rule)
                 if len(package_name_list) > 1:
                     logger.info('{dependency} returned {package_name_list}'
                                 .format_map(locals()))
