@@ -37,7 +37,6 @@ class RosCatkinBundle(TaskExtensionPoint):
                             .format_map(locals()))
                 continue
             try:
-                logger.error(rosdep)
                 rule_installer, rule = rosdep.get_rule(dependency.name)
             except KeyError as e:
                 logger.error('Could not find key for {dependency}'.format(
@@ -45,7 +44,7 @@ class RosCatkinBundle(TaskExtensionPoint):
                 continue
 
             if rule_installer == 'source':
-                logger.error(
+                logger.info(
                     '{dependency} should be built from source.'.format(
                         dependency=dependency.name))
                 if 'uri' in rule.keys():
