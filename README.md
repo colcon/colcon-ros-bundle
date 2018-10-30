@@ -1,4 +1,4 @@
-# colcon-ros-bundle
+# colcon-ros-bundle [![Build Status](https://travis-ci.org/colcon/colcon-ros-bundle.svg?branch=master)](https://travis-ci.org/colcon/colcon-ros-bundle)
 
 This package is a plugin to [colcon-core](https://github.com/colcon/colcon-core.git),
 that contains extensions for [colcon-bundle](https://github.com/colcon/colcon-bundle).
