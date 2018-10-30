@@ -58,6 +58,11 @@ class RosCatkinBundle(TaskExtensionPoint):
                                  'but does not link to an rdmanifest'
                                  .format(dependency=dependency.name))
             else:
+                # If the package requires pip, ensure pip is installed
+                # in the bundle
+                if rule_installer == 'pip':
+                    args.installers['apt'].add_to_install_list('python-pip')
+
                 package_name_list = rosdep.resolve(rule)
                 if len(package_name_list) > 1:
                     logger.info('{dependency} returned {package_name_list}'
