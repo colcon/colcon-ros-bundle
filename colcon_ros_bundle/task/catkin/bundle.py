@@ -38,7 +38,7 @@ class RosCatkinBundle(TaskExtensionPoint):
                 continue
             try:
                 rule_installer, rule = rosdep.get_rule(dependency.name)
-            except KeyError as e:
+            except KeyError:
                 logger.error('Could not find key for {dependency}'.format(
                     dependency=dependency.name))
                 continue

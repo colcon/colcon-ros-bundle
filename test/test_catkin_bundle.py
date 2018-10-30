@@ -48,7 +48,7 @@ async def test_bundle():
 
     # Concise read on why it's patched this way.
     # http://www.voidspace.org.uk/python/mock/patch.html#where-to-patch
-    with patch('colcon_ros_bundle.task.catkin.bundle.RosdepWrapper') as wrapper:
+    with patch('colcon_ros_bundle.task.catkin.bundle.RosdepWrapper') as wrapper: # noqa: E501
         wrapper().get_rule.side_effect = _get_rule_side_effect
         wrapper().resolve.side_effect = _resolve_side_effect
         await task.bundle()
@@ -102,7 +102,7 @@ async def test_exclude_ros_base():
 
     # Concise read on why it's patched this way.
     # http://www.voidspace.org.uk/python/mock/patch.html#where-to-patch
-    with patch('colcon_ros_bundle.task.catkin.bundle.RosdepWrapper') as wrapper:
+    with patch('colcon_ros_bundle.task.catkin.bundle.RosdepWrapper') as wrapper: # noqa: E501
         wrapper().get_rule.side_effect = _get_rule_side_effect
         wrapper().resolve.side_effect = _resolve_side_effect
         await task.bundle()
