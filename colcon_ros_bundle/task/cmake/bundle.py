@@ -4,5 +4,5 @@
 from ..ros_bundle import RosBundle
 
 
-class RosCatkinBundle(RosBundle):
+class RosCmakeBundle(RosBundle):
     """Bundle task for catkin packages."""
