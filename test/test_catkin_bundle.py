@@ -5,20 +5,19 @@ from colcon_bundle.verb.bundle import BundlePackageArguments
 from colcon_core.dependency_descriptor import DependencyDescriptor
 from colcon_core.package_descriptor import PackageDescriptor
 from colcon_core.task import TaskContext
-from colcon_ros_bundle.task.catkin.bundle import RosCatkinBundle
+from colcon_ros_bundle.task.ros_bundle import RosBundle
 from mock import MagicMock, patch
 import pytest
 
 
 def test_add_arguments():
     parser = MagicMock()
-    task = RosCatkinBundle()
+    task = RosBundle()
     task.add_arguments(parser=parser)
 
     calls = parser.add_argument.call_args_list
 
-    assert calls[0][0][0] == '--ros-distribution'
-    assert calls[1][0][0] == '--exclude-ros-base'
+    assert calls[0][0][0] == '--exclude-ros-base'
 
 
 @pytest.mark.asyncio
@@ -43,12 +42,12 @@ async def test_bundle():
     args.exclude_ros_base = True
 
     context = TaskContext(pkg=pkg, args=args, dependencies={})
-    task = RosCatkinBundle()
+    task = RosBundle()
     task.set_context(context=context)
 
     # Concise read on why it's patched this way.
     # http://www.voidspace.org.uk/python/mock/patch.html#where-to-patch
-    with patch('colcon_ros_bundle.task.catkin.bundle.RosdepWrapper') as wrapper: # noqa: E501
+    with patch('colcon_ros_bundle.task.ros_bundle.RosdepWrapper') as wrapper: # noqa: E501
         wrapper().get_rule.side_effect = _get_rule_side_effect
         wrapper().resolve.side_effect = _resolve_side_effect
         await task.bundle()
@@ -82,6 +81,45 @@ def _resolve_side_effect(rule):
 
 
 @pytest.mark.asyncio
+async def test_include_ros_base():
+    pkg = PackageDescriptor('package/path')
+    pkg.name = 'MyPackageName'
+    pkg.dependencies['run'] = {}
+    installers = {
+        'apt': MagicMock(),
+    }
+    top_level_args = MagicMock(build_base='build/base',
+                               install_base='install/base',
+                               bundle_base='bundle/base')
+    args = BundlePackageArguments(pkg, installers, top_level_args)
+    args.ros_distribution = 'kinetic'
+    args.exclude_ros_base = False
+
+    context = TaskContext(pkg=pkg, args=args, dependencies={})
+    task = RosBundle()
+    task.set_context(context=context)
+
+    # Concise read on why it's patched this way.
+    # http://www.voidspace.org.uk/python/mock/patch.html#where-to-patch
+    with patch('colcon_ros_bundle.task.ros_bundle.RosdepWrapper') as wrapper: # noqa: E501
+        with patch('os.environ') as environ:
+            environ.__getitem__.side_effect = access_var
+            wrapper().get_rule.side_effect = _get_rule_side_effect
+            wrapper().resolve.side_effect = _resolve_side_effect
+            await task.bundle()
+
+    installers['apt'].add_to_install_list.assert_called_with(
+        'ros-kinetic-ros-base')
+
+
+def access_var(key):
+    if key == 'ROS_DISTRO':
+        return 'kinetic'
+    else:
+        return None
+
+
+@pytest.mark.asyncio
 async def test_exclude_ros_base():
     pkg = PackageDescriptor('package/path')
     pkg.name = 'MyPackageName'
@@ -97,15 +135,14 @@ async def test_exclude_ros_base():
     args.exclude_ros_base = False
 
     context = TaskContext(pkg=pkg, args=args, dependencies={})
-    task = RosCatkinBundle()
+    task = RosBundle()
     task.set_context(context=context)
 
     # Concise read on why it's patched this way.
     # http://www.voidspace.org.uk/python/mock/patch.html#where-to-patch
-    with patch('colcon_ros_bundle.task.catkin.bundle.RosdepWrapper') as wrapper: # noqa: E501
+    with patch('colcon_ros_bundle.task.ros_bundle.RosdepWrapper') as wrapper: # noqa: E501
         wrapper().get_rule.side_effect = _get_rule_side_effect
         wrapper().resolve.side_effect = _resolve_side_effect
         await task.bundle()
 
-    installers['apt'].add_to_install_list.assert_called_with(
-        'ros-kinetic-ros-base')
+    installers['apt'].add_to_install_list.assert_not_called()
