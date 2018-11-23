@@ -45,11 +45,14 @@ class RdmanifestBundleInstallerExtensionPoint(BundleInstallerExtensionPoint):
         pass
 
     def install(self):  # noqa: D102
+        installed_packages = []
         for name, metadata in self._items.items():
             logger.info('Installing {name}'.format(name=name))
             uri = metadata['uri']
             usr_prefix_path = os.path.join(self.context.prefix_path, 'usr')
             _install_rdmanifest(uri, usr_prefix_path)
+            installed_packages.append({'name': name, 'uri': uri})
+        return {'installed_packages': installed_packages}
 
 
 def _install_rdmanifest(uri, prefix):
