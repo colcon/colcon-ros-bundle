@@ -5,7 +5,6 @@ sudo: true
 before_install:
   - sudo apt update && sudo apt install -y enchant
 install:
-  - pip install -U setuptools
   # install_requires
   - pip install -U git+https://github.com/colcon/colcon-core
   - pip install -U git+https://github.com/colcon/colcon-library-path
