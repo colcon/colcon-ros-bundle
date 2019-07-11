@@ -17,9 +17,7 @@ class RosBundle(TaskExtensionPoint):
         satisfies_version(TaskExtensionPoint.EXTENSION_POINT_VERSION, '^1.0')
 
     def add_arguments(self, *, parser):  # noqa: D102
-        parser.add_argument(
-            '--exclude-ros-base', action='store_true',
-            help='Do not add ros-base package to the bundle')
+        pass
 
     async def bundle(self):  # noqa D:102
         args = self.context.args
