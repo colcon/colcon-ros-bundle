@@ -29,8 +29,8 @@ class RdmanifestBundleInstallerExtensionPoint(BundleInstallerExtensionPoint):
     Example:
 
         cmake -DCMAKE_INSTALL_PREFIX:PATH=${COLCON_BUNDLE_INSTALL_PREFIX}
-
     """
+    
     def __init__(self):  # noqa: D107
         self._items = {}
 
