@@ -15,7 +15,7 @@ install:
   - pip install -U git+https://github.com/ros-infrastructure/rosdep
   - pip install -U git+https://github.com/colcon/colcon-ros
   # tests_require
-  - pip install -U flake8-blind-except flake8-builtins flake8-class-newline flake8-comprehensions flake8-deprecated flake8-docstrings flake8-quotes pep8-naming pyenchant pylint pytest pytest-cov
+  - pip install -r requirements_devel.txt
 script:
   # invoke pytest
   - python3 -m pytest --cov=colcon_ros_bundle --cov-branch
