@@ -6,6 +6,8 @@ before_install:
   - sudo apt update && sudo apt install -y enchant
 install:
   - pip install -U setuptools
+  # tests_require
+  - pip install -r requirements_devel.txt
   # install_requires
   - pip install -U git+https://github.com/colcon/colcon-core
   - pip install -U git+https://github.com/colcon/colcon-library-path
@@ -14,8 +16,6 @@ install:
   - pip install -U git+https://github.com/colcon/colcon-bundle
   - pip install -U git+https://github.com/ros-infrastructure/rosdep
   - pip install -U git+https://github.com/colcon/colcon-ros
-  # tests_require
-  - pip install -r requirements_devel.txt
 script:
   # invoke pytest
   - python3 -m pytest --cov=colcon_ros_bundle --cov-branch
