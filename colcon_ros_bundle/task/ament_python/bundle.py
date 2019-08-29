@@ -1,12 +1,12 @@
 # Copyright 2018 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-from colcon_ros_bundle.task import logger
+import os
+
 from colcon_core.dependency_descriptor import DependencyDescriptor
 from colcon_core.plugin_system import satisfies_version
 from colcon_core.task import TaskExtensionPoint
-
-import os
+from colcon_ros_bundle.task import logger
 
 
 class RosAmentPythonBundleTask(TaskExtensionPoint):
