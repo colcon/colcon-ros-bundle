@@ -52,7 +52,7 @@ class RosAmentPythonBundleTask(TaskExtensionPoint):
             apt.add_to_install_list('python3-pip')
 
         try:
-            ros_distro = os.environ['ROS_DISTRO']
+            ros_distro = os.environ.get('ROS_DISTRO', None)
             if ros_distro is not None:
                 args.installers['apt'].add_to_install_list(
                     'ros-{ros_distro}-ros-base'.format(
