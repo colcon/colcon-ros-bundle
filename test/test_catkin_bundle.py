@@ -10,16 +10,6 @@ from mock import MagicMock, patch
 import pytest
 
 
-def test_add_arguments():
-    parser = MagicMock()
-    task = RosBundle()
-    task.add_arguments(parser=parser)
-
-    calls = parser.add_argument.call_args_list
-
-    assert calls[0][0][0] == '--exclude-ros-base'
-
-
 @pytest.mark.asyncio
 async def test_bundle():
     pkg = PackageDescriptor('package/path')
