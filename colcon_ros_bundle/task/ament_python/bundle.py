@@ -36,15 +36,27 @@ class RosAmentPythonBundleTask(TaskExtensionPoint):
                     'because it is in the workspace'.format_map(locals()))
                 continue
 
-            if 'version_eq' in dependency.metadata:
-                pip = args.installers['pip3']
+            symbol_mapping = {
+                'version_eq': '==',
+                'version_neq': '!=',
+                'version_lte': '<=',
+                'version_gte': '>=',
+                'version_gt': '>',
+                'version_lt': '<',
+            }
+
+            pip = args.installers['pip3']
+            versioned = False
+            for comparator, version in dependency.metadata.items():
+                if symbol_mapping.get(comparator) is not None:
+                    versioned = True
+                    pip.add_to_install_list(
+                        dependency.name + symbol_mapping[comparator] + version
+                    )
+            if not versioned:
                 pip.add_to_install_list(
-                    dependency.name + '==' + dependency.metadata['version_eq'])
-            else:
-                logger.warning('Currently only support version locked '
-                               'packages. Skipping: {dependency}'
-                               .format(dependency=dependency))
-                continue
+                    dependency.name
+                )
 
             # TODO: The Pip managers should be doing this
             apt = args.installers['apt']
