@@ -13,6 +13,6 @@ mock
 pep8-naming
 pyenchant
 pylint
-pytest
+pytest==4.4
 pytest-cov
 pytest-asyncio
