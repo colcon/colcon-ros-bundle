@@ -1,12 +1,17 @@
 name: Test colcon-ros-bundle
 on:
   pull_request:
+  # Runs every morning 08:43AM PST 
   schedule:
     - cron: '43 17 * * *'
 
 jobs:
   run_test_suite:
     runs-on: ubuntu-18.04
+    strategy:
+      fail-fast: false
+      matrix:
+        deps_repo: [mainline, pypi]
     steps:
     - name: Checkout sources
       uses: actions/checkout@v2
@@ -14,10 +19,18 @@ jobs:
       uses: actions/setup-python@v1
       with:
         python-version: 3.5
-    - name: Install dependencies
+    - name: Install testing dependencies
       run: |
         sudo apt update && sudo apt install -y enchant
-        pip3 install -U setuptools==44.0.0 colcon-bundle rosdep
+        pip3 install -U setuptools==44.0.0
         pip3 install -r requirements_devel.txt
+    - name: Install dependencies from mainline
+      if: matrix.deps_repo == 'mainline'
+      run: |
+        pip3 install -U git+https://github.com/colcon/colcon-bundle git+https://github.com/ros-infrastructure/rosdep
+    - name: Install dependencies from PyPi
+      if: matrix.deps_repo == 'pypi'
+      run: |
+        pip3 install -U colcon-bundle rosdep
     - name: Run test
       run: python3 -m pytest --cov=colcon_ros_bundle --cov-branch
