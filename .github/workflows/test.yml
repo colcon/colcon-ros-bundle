@@ -19,6 +19,12 @@ jobs:
       uses: actions/setup-python@v1
       with:
         python-version: 3.5
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ secrets.AWS_REGION }}
     - name: Install testing dependencies
       run: |
         sudo apt update && sudo apt install -y enchant
@@ -34,3 +40,13 @@ jobs:
         pip3 install -U colcon-bundle rosdep
     - name: Run test
       run: python3 -m pytest --cov=colcon_ros_bundle --cov-branch
+    - name: Log Test Failure
+      uses: ros-tooling/action-cloudwatch-metrics@0.0.1
+      with:
+        status: 'failure'
+      if: failure() && github.event_name == 'schedule'
+    - name: Log Test Success
+      uses: ros-tooling/action-cloudwatch-metrics@0.0.1
+      with:
+        status: 'success'
+      if: success() && github.event_name == 'schedule'
