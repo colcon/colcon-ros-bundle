@@ -1,7 +1,7 @@
 name: Test colcon-ros-bundle
 on:
   pull_request:
-  # Runs every morning 08:43AM PST 
+  # Runs every morning 08:43AM PST
   schedule:
     - cron: '43 17 * * *'
 
@@ -41,13 +41,33 @@ jobs:
         pip3 install -U colcon-bundle rosdep
     - name: Run test
       run: python3 -m pytest --cov=colcon_ros_bundle --cov-branch
-    - name: Log Test Failure
-      uses: ros-tooling/action-cloudwatch-metrics@0.0.2
+
+  log_workflow_status_to_cloudwatch:
+    runs-on: ubuntu-latest
+    container:
+      image: ubuntu:bionic
+    needs:
+      - run_test_suite
+    if: always()  # run even if the dependent jobs have failed to log failures
+    # Allow build reports to fail on pull requests.
+    # When a contribution is made on a fork, the secrets will not be available,
+    # and this step will be failing. This is acceptable.
+    # On the other end, we want to be notified if this happens on merge, or
+    # on schedule.
+    continue-on-error: ${{ github.event_name == 'pull_request'}}
+    steps:
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v1
       with:
-        status: 'failure'
-      if: failure() && github.event_name == 'schedule'
-    - name: Log Test Success
-      uses: ros-tooling/action-cloudwatch-metrics@0.0.2
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ secrets.AWS_REGION }}
+    - uses: ros-tooling/action-cloudwatch-metrics@0.0.4
       with:
-        status: 'success'
-      if: success() && github.event_name == 'schedule'
+        # Checks if any of the jobs have failed.
+        #
+        # needs.*.result is returns the list of all success statuses as an
+        # array, i.e. ['success', 'failure, 'success']
+        # join() converts the array to a string 'successfailuresuccess'
+        # contains() checks whether the string contains failure
+        metric-value: ${{ ! contains(join(needs.*.result, ''), 'failure') && ! contains(join(needs.*.result, ''), 'cancelled') }}
