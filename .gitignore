@@ -106,3 +106,4 @@ venv.bak/
 # IntelliJ files
 .idea/
 
+.vscode/
