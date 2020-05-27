@@ -1,9 +1,9 @@
 name: Test colcon-ros-bundle
 on:
   pull_request:
-  # Runs every morning 08:43AM PST
+  # Run tests hourly
   schedule:
-    - cron: '43 17 * * *'
+    - cron: '0 * * * *'
 
 jobs:
   run_test_suite:
