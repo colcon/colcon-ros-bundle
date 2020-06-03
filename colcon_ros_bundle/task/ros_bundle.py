@@ -60,6 +60,8 @@ class RosBundle(TaskExtensionPoint):
                     args.installers['apt'].add_to_install_list('python-pip')
 
                 package_name_list = rosdep.resolve(rule)
+                if len(package_name_list) == 0:
+                    continue
                 if len(package_name_list) > 1:
                     logger.info('{dependency} returned {package_name_list}'
                                 .format_map(locals()))
