@@ -6,4 +6,4 @@ import colcon_ros_bundle
 
 def test_version():
     version = colcon_ros_bundle.__version__
-    assert version == '0.0.14'
+    assert version == '0.0.15'
