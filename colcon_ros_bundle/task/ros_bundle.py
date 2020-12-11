@@ -78,7 +78,7 @@ class RosBundle(TaskExtensionPoint):
         if not False:
             logger.info('Including ros-base')
             try:
-                ros_distro = os.environ['ROS_DISTRO']
+                ros_distro = os.environ.get('ROS_DISTRO')
                 if ros_distro is not None:
                     args.installers['apt'].add_to_install_list(
                         'ros-{ros_distro}-ros-base'.format(
