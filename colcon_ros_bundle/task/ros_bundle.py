@@ -75,18 +75,12 @@ class RosBundle(TaskExtensionPoint):
                         os_specific_dependency=package_name_list,
                         installer=rule_installer))
 
-        if not False:
-            logger.info('Including ros-base')
-            try:
-                ros_distro = os.environ.get('ROS_DISTRO')
-                if ros_distro is not None:
-                    args.installers['apt'].add_to_install_list(
-                        'ros-{ros_distro}-ros-base'.format(
-                            ros_distro=ros_distro))
-                else:
-                    logger.error('ROS_DISTRO is not defined make sure to'
-                                 'source your ROS environment.')
-                    raise RuntimeError('ROS_DISTRO environment variable '
-                                       'not defined.')
-            except KeyError:
-                logger.error('Could not find package')
+        logger.info('Including ros-base')
+        ros_distro = os.environ.get('ROS_DISTRO')
+        if ros_distro is not None:
+            args.installers['apt'].add_to_install_list(
+                'ros-{ros_distro}-ros-base'.format(
+                    ros_distro=ros_distro))
+        else:
+            logger.error('ROS_DISTRO is not defined make sure to '
+                         'source your ROS environment.')

@@ -22,14 +22,13 @@ async def test_bundle():
     installers = {
         'rdmanifest': MagicMock(),
         'system': MagicMock(),
-        'other': MagicMock()
+        'other': MagicMock(),
+        'apt': MagicMock()
     }
     top_level_args = MagicMock(build_base='build/base',
                                install_base='install/base',
                                bundle_base='bundle/base')
     args = BundlePackageArguments(pkg, installers, top_level_args)
-    args.ros_distribution = 'kinetic'
-    args.exclude_ros_base = True
 
     context = TaskContext(pkg=pkg, args=args, dependencies={})
     task = RosBundle()
@@ -38,9 +37,11 @@ async def test_bundle():
     # Concise read on why it's patched this way.
     # http://www.voidspace.org.uk/python/mock/patch.html#where-to-patch
     with patch('colcon_ros_bundle.task.ros_bundle.RosdepWrapper') as wrapper:  # noqa: E501
-        wrapper().get_rule.side_effect = _get_rule_side_effect
-        wrapper().resolve.side_effect = _resolve_side_effect
-        await task.bundle()
+        with patch('os.environ') as environ:
+            environ.__getitem__.side_effect = access_var
+            wrapper().get_rule.side_effect = _get_rule_side_effect
+            wrapper().resolve.side_effect = _resolve_side_effect
+            await task.bundle()
 
     installers['rdmanifest'].add_to_install_list.assert_called_with(
         'source_pkg', {'s': 'ource', 'uri': 'rdmanifest'})
@@ -82,8 +83,6 @@ async def test_include_ros_base():
                                install_base='install/base',
                                bundle_base='bundle/base')
     args = BundlePackageArguments(pkg, installers, top_level_args)
-    args.ros_distribution = 'kinetic'
-    args.exclude_ros_base = False
 
     context = TaskContext(pkg=pkg, args=args, dependencies={})
     task = RosBundle()
@@ -93,7 +92,7 @@ async def test_include_ros_base():
     # http://www.voidspace.org.uk/python/mock/patch.html#where-to-patch
     with patch('colcon_ros_bundle.task.ros_bundle.RosdepWrapper') as wrapper:  # noqa: E501
         with patch('os.environ') as environ:
-            environ.__getitem__.side_effect = access_var
+            environ.get = access_var
             wrapper().get_rule.side_effect = _get_rule_side_effect
             wrapper().resolve.side_effect = _resolve_side_effect
             await task.bundle()
@@ -121,8 +120,6 @@ async def test_exclude_ros_base():
                                install_base='install/base',
                                bundle_base='bundle/base')
     args = BundlePackageArguments(pkg, installers, top_level_args)
-    args.ros_distribution = 'kinetic'
-    args.exclude_ros_base = False
 
     context = TaskContext(pkg=pkg, args=args, dependencies={})
     task = RosBundle()
