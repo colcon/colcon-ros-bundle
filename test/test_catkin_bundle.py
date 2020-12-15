@@ -20,10 +20,10 @@ async def test_bundle():
         DependencyDescriptor('system_pkg')
     }
     installers = {
+        'apt': MagicMock(),
         'rdmanifest': MagicMock(),
-        'system': MagicMock(),
         'other': MagicMock(),
-        'apt': MagicMock()
+        'system': MagicMock()
     }
     top_level_args = MagicMock(build_base='build/base',
                                install_base='install/base',
