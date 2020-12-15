@@ -38,7 +38,7 @@ async def test_bundle():
     # http://www.voidspace.org.uk/python/mock/patch.html#where-to-patch
     with patch('colcon_ros_bundle.task.ros_bundle.RosdepWrapper') as wrapper:  # noqa: E501
         with patch('os.environ') as environ:
-            environ.__getitem__.side_effect = access_var
+            environ.get = access_var
             wrapper().get_rule.side_effect = _get_rule_side_effect
             wrapper().resolve.side_effect = _resolve_side_effect
             await task.bundle()
@@ -109,7 +109,7 @@ def access_var(key):
 
 
 @pytest.mark.asyncio
-async def test_exclude_ros_base():
+async def test_rosdistro_not_defined():
     pkg = PackageDescriptor('package/path')
     pkg.name = 'MyPackageName'
     pkg.dependencies['run'] = {}
@@ -128,8 +128,9 @@ async def test_exclude_ros_base():
     # Concise read on why it's patched this way.
     # http://www.voidspace.org.uk/python/mock/patch.html#where-to-patch
     with patch('colcon_ros_bundle.task.ros_bundle.RosdepWrapper') as wrapper:  # noqa: E501
-        wrapper().get_rule.side_effect = _get_rule_side_effect
-        wrapper().resolve.side_effect = _resolve_side_effect
-        await task.bundle()
+        with pytest.raises(RuntimeError):
+            wrapper().get_rule.side_effect = _get_rule_side_effect
+            wrapper().resolve.side_effect = _resolve_side_effect
+            await task.bundle()
 
     installers['apt'].add_to_install_list.assert_not_called()

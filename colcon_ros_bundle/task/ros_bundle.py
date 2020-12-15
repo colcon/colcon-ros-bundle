@@ -84,3 +84,4 @@ class RosBundle(TaskExtensionPoint):
         else:
             logger.error('ROS_DISTRO is not defined make sure to '
                          'source your ROS environment.')
+            raise RuntimeError("ROS_DISTRO is not defined. Make sure to source your ROS environment.")
