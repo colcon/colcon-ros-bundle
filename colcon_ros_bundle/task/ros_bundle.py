@@ -29,9 +29,10 @@ class RosBundle(TaskExtensionPoint):
         for dependency in self.context.pkg.dependencies['run']:
             if type(dependency) == str:
                 #todo: determine how to add all packages as PackageDescriptors
+                #skipping strings in the dependency list as a temporary solution
                 #https://github.com/colcon/colcon-ros-bundle/issues/45
-                logger.info("Skipping {dependency} because it was not added
-                as a PackageDescriptor type.")
+                logger.info('Skipping {dependency} because it was not added '
+                    'as a PackageDescriptor type.')
                 continue
             if dependency.name in self.context.dependencies:
                 logger.info('Skipping {dependency} of {self.context.pkg.name} '
