@@ -1,12 +1,13 @@
 # Copyright 2018 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+from unittest.mock import MagicMock, patch
+
 from colcon_bundle.verb.bundle import BundlePackageArguments
 from colcon_core.dependency_descriptor import DependencyDescriptor
 from colcon_core.package_descriptor import PackageDescriptor
 from colcon_core.task import TaskContext
 from colcon_ros_bundle.task.ros_bundle import RosBundle
-from mock import MagicMock, patch
 import pytest
 
 
