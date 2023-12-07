@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import os
+import sys
 
 from colcon_core.plugin_system import satisfies_version
 from colcon_core.task import TaskExtensionPoint
@@ -64,7 +65,13 @@ class RosBundle(TaskExtensionPoint):
                 # If the package requires pip, ensure pip is installed
                 # in the bundle
                 if rule_installer == 'pip':
-                    args.installers['apt'].add_to_install_list('python-pip')
+                    if sys.version_info.major == 2:
+                        args.installers['apt'].add_to_install_list('python-pip')
+                    elif sys.version_info.major == 3:
+                        args.installers['apt'].add_to_install_list('python3-pip')
+                    else:
+                        logger.error('Unable to determine python version.')
+                        raise RuntimeError('Unable to determine python version.')
 
                 package_name_list = rosdep.resolve(rule)
                 if len(package_name_list) == 0:
